@@ -1,8 +1,8 @@
 build:
 	rm -rf ./bin
 	mkdir bin
-	g++ -Wall ./src/main.cpp -o ./bin/gla
-	chmod +x ./bin/gla
+	g++ -Wall -I./include ./src/main.cpp -o ./bin/ga
+	chmod +x ./bin/ga
 
 clean:
 	rm -rf ./bin
