@@ -23,9 +23,8 @@ private:
 
 public:
     ComplexNumber(T real, U imaginary);
-    friend ComplexNumber operator +(ComplexNumber<T, U> const& c1, ComplexNumber<T, U> const& c2);
-    friend ComplexNumber operator -(ComplexNumber<T, U> const& c1, ComplexNumber<T, U> const& c2);
-    friend ComplexNumber operator *(ComplexNumber<T, U> const& c1, ComplexNumber<T, U> const& c2);
+    T getReal();
+    U getImaginary();
 };
 
 template <typename T, typename U>
@@ -41,19 +40,13 @@ ComplexNumber<T, U>::ComplexNumber(T real, U imaginary)
 }
 
 template <typename T, typename U>
-ComplexNumber<T, U> operator +(ComplexNumber<T, U> const& c1, ComplexNumber<T, U> const& c2)
+T ComplexNumber<T, U>::getReal()
 {
-    return ComplexNumber<T, U>(c1.real + c2.real, c1.imaginary + c2.imaginary);
+    return this->real;
 }
 
 template <typename T, typename U>
-ComplexNumber<T, U> operator -(ComplexNumber<T, U> const& c1, ComplexNumber<T, U> const& c2)
+U ComplexNumber<T, U>::getImaginary()
 {
-    return ComplexNumber<T, U>(c1.real - c2.real, c1.imaginary - c2.imaginary);
-}
-
-template <typename T, typename U>
-ComplexNumber<T, U> operator *(ComplexNumber<T, U> const& c1, ComplexNumber<T, U> const& c2)
-{
-
+    return this->imaginary;
 }
