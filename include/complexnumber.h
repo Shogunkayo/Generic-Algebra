@@ -1,17 +1,3 @@
-/*
-Data structures:
-    Scalar
-    Complex number
-    Vector
-    Matrix
-        Identity 
-        Diagonal
-        Row
-        Column
-        Zero
-        Random
-*/
-
 #include <type_traits>
 
 template <typename T, typename U>
