@@ -2,18 +2,11 @@
 #include <iostream>
 
 int main (int argc, char *argv[]) {
-	ColumnVector<int> x = {1, 2, 3, 4, 5};
-	x.push_back(10);
+	Vector<int> x = {1, 2};
+	Vector<float> y = {1.5, 2.5};
 
-	ColumnVector<int> y = x;
-	
-	x = x * 2;
-
-	y = y + x;
-
-	for (int i = 0; i < y.size(); i++) {
-		std::cout << y[i] << std::endl;
-	}
+	std::cout << dot(x, y) << std::endl;
+	std::cout << euclidean_distance(x, x) << std::endl;
 
 	return 0;
 }

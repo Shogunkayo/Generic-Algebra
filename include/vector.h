@@ -1,26 +1,28 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <cmath>
 #include <initializer_list>
 #include <stdexcept>
+#include <type_traits>
 #include "./complexnumber.h"
 
 template<typename T>
-class Vector {
+class VectorContainer {
 	public:
 		T* arr;
 		int capacity;
 		int no_elements;
 	
-		Vector () : arr(new T[1]), capacity(1), no_elements(0) {}
-		Vector (std::initializer_list<T> init): capacity(init.size()), no_elements(init.size()) {
+		VectorContainer () : arr(new T[1]), capacity(1), no_elements(0) {}
+		VectorContainer (std::initializer_list<T> init): capacity(init.size()), no_elements(init.size()) {
 			arr = new T[capacity];
 			auto first = init.begin();
 			auto last = init.end();
 			for (int i = 0; first != last ; ++i, (void)++first)
 				arr[i] = *first;
 		}
-		Vector (Vector &obj) {
+		VectorContainer (VectorContainer &obj) {
 			capacity = obj.capacity;
 			no_elements = obj.no_elements;
 			arr = new T[capacity];
@@ -30,7 +32,7 @@ class Vector {
 			}
 
 		}
-		Vector& operator= (Vector &obj) {
+		VectorContainer& operator= (VectorContainer &obj) {
 			if (this->capacity != obj.capacity) {
 				if constexpr (std::is_class<T>::value) {
 					for (int i = 0; i < this->no_elements; i++) {
@@ -49,7 +51,7 @@ class Vector {
 			this->no_elements = obj.no_elements;
 			return (*this);
 		}
-		~Vector();
+		~VectorContainer();
 
 		void resize();
 		void push_back(T key);
@@ -65,7 +67,7 @@ class Vector {
 };
 
 template <typename T>
-Vector<T>::~Vector() {
+VectorContainer<T>::~VectorContainer() {
     if constexpr (std::is_class<T>::value) {
         for (int i = 0; i < no_elements; i++) {
             arr[i].~T();
@@ -75,7 +77,7 @@ Vector<T>::~Vector() {
 }
 
 template <typename T>
-void Vector<T>::resize() {
+void VectorContainer<T>::resize() {
 	T* new_arr = new T[capacity * 2];
 
 	for (int i = 0; i < no_elements; i++) {
@@ -88,7 +90,7 @@ void Vector<T>::resize() {
 }
 
 template <typename T>
-void Vector<T>::push_back(T key) {
+void VectorContainer<T>::push_back(T key) {
     if (no_elements == capacity) {
         resize();
     }
@@ -96,7 +98,7 @@ void Vector<T>::push_back(T key) {
 }
 
 template <typename T>
-void Vector<T>::insert(T key, int index) {
+void VectorContainer<T>::insert(T key, int index) {
     if (index < 0) {
         throw std::out_of_range("Index must be positive");
     }
@@ -118,7 +120,7 @@ void Vector<T>::insert(T key, int index) {
 }
 
 template <typename T>
-T& Vector<T>::at(int index) {
+T& VectorContainer<T>::at(int index) {
     if (index < 0 || index > no_elements - 1) {
         throw std::out_of_range("Index out of bounds");
     }
@@ -126,7 +128,7 @@ T& Vector<T>::at(int index) {
 }
 
 template <typename T>
-T& Vector<T>::operator[](int index) {
+T& VectorContainer<T>::operator[](int index) {
     if (index < 0 || index > no_elements - 1) {
         throw std::out_of_range("Index out of bounds");
     }
@@ -134,7 +136,7 @@ T& Vector<T>::operator[](int index) {
 }
 
 template <typename T>
-const T& Vector<T>::operator[](int index) const {
+const T& VectorContainer<T>::operator[](int index) const {
     if (index < 0 || index > no_elements - 1) {
         throw std::out_of_range("Index out of bounds");
     }
@@ -142,41 +144,50 @@ const T& Vector<T>::operator[](int index) const {
 }
 
 template <typename T>
-void Vector<T>::pop() {
+void VectorContainer<T>::pop() {
     no_elements--;
 }
 
 template <typename T>
-int Vector<T>::size() {
+int VectorContainer<T>::size() {
     return no_elements;
 }
 
 template <typename T>
-int Vector<T>::getcapacity() {
+int VectorContainer<T>::getcapacity() {
     return capacity;
 }
 
 // ----------------------------------------------------------------------------
 
 template <Arithmetic T>
-class ColumnVector : public Vector<T> {
+class Vector;
+
+template <typename T>
+double euclidean_distance(const Vector<T>& v1, const Vector<T>& v2);
+
+template <Arithmetic T>
+class Vector : public VectorContainer<T> {
 	public:
 		int dim_l;
-		const int dim_r;
+		int dim_r;
+		int isColumn;
 	
-		ColumnVector() : dim_l(0), dim_r(1) {}
-		ColumnVector(std::initializer_list<T> init) : Vector<T>(init), dim_l(init.size()), dim_r(1) {}
-		ColumnVector(ColumnVector& obj) : dim_r(1) {
+		Vector() : dim_l(0), dim_r(1), isColumn(1) {}
+		Vector(std::initializer_list<T> init) : VectorContainer<T>(init), dim_l(init.size()), dim_r(1), isColumn(1) {}
+		Vector(Vector& obj) {
 			this->capacity = obj.capacity;
 			this->no_elements = obj.no_elements;
-			this->dim_l = obj.no_elements;
+			this->dim_l = obj.dim_l;
+			this->dim_r = obj.dim_r;
+			this->isColumn = obj.isColumn;
 			this->arr = new T[this->capacity];
 
 			for (int i = 0; i < this->no_elements; i++) {
 				this->arr[i] = obj.arr[i];
 			}
 		}
-		ColumnVector& operator= (ColumnVector&& other) noexcept {
+		Vector& operator= (Vector&& other) noexcept {
 			if (this != &other) {
 				if constexpr (std::is_class<T>::value) {
 					for (int i = 0; i < this->no_elements; i++) {
@@ -188,10 +199,16 @@ class ColumnVector : public Vector<T> {
 				this->no_elements = other.no_elements;
 				this->arr = other.arr;
 				this->capacity = other.capacity;
+				this->dim_r = other.dim_r;
+				this->dim_l = other.dim_l;
+				this->isColumn = other.isColumn;
 
+				other.dim_l = 0;
+				other.dim_r = 1;
 				other.no_elements = 0;
 				other.capacity = 1;
 				other.arr = nullptr;
+				other.isColumn = 1;
 			}
 
 			return (*this);
@@ -201,135 +218,166 @@ class ColumnVector : public Vector<T> {
 		void insert(T key, int index);
 		void pop();
 
-		Vector<int> get_dimensions();
+		VectorContainer<int> get_dimensions();
 
-		ColumnVector<T> operator+ (const T obj);
-		ColumnVector<T> operator- (const T obj);
-		ColumnVector<T> operator* (const T obj);
-		ColumnVector<T> operator/ (const T obj);
-		ColumnVector<T> operator+ (const ColumnVector<T> obj);
-		ColumnVector<T> operator- (const ColumnVector<T> obj);
+		Vector<T> operator+ (const T obj);
+		Vector<T> operator- (const T obj);
+		Vector<T> operator* (const T obj);
+		Vector<T> operator/ (const T obj);
+		Vector<T> operator+ (const Vector<T> obj);
+		Vector<T> operator- (const Vector<T> obj);
+
+		double magnitude();
+		void transpose();
+
+		friend double euclidean_distance<>(const Vector<T>& v1, const Vector<T>& v2);
 }; 
 
 template <Arithmetic T>
-void ColumnVector<T>::push_back(T key) {
-	Vector<T>::push_back(key);
-	dim_l++;
+void Vector<T>::push_back(T key) {
+	VectorContainer<T>::push_back(key);
+	dim_r += !isColumn;
+	dim_l += isColumn;
 }
 
 template <Arithmetic T>
-void ColumnVector<T>::insert(T key, int index) {
-	Vector<T>::insert(key, index);
-	dim_l++;
+void Vector<T>::insert(T key, int index) {
+	VectorContainer<T>::insert(key, index);
+	dim_r += !isColumn;
+	dim_l += isColumn;
 }
 
 template <Arithmetic T>
-void ColumnVector<T>::pop() {
-	Vector<T>::pop();
-	dim_l--;
+void Vector<T>::pop() {
+	VectorContainer<T>::pop();
+	dim_r -= !isColumn;
+	dim_l -= isColumn;
 }
 
 template <Arithmetic T>
-Vector<int> ColumnVector<T>::get_dimensions() {
-	return Vector<int> (dim_l, dim_r);
+VectorContainer<int> Vector<T>::get_dimensions() {
+	return VectorContainer<int> (dim_l, dim_r);
 }
 
 template <Arithmetic T>
-ColumnVector<T> ColumnVector<T>::operator+ (const T obj) {
-	ColumnVector<T> result;
-	result.capacity = this->capacity;
-	result.no_elements = this->no_elements;
-	result.dim_l = this->dim_l;
-	result.arr = new T[result.capacity];
+Vector<T> Vector<T>::operator+ (const T obj) {
+	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
-		result.arr[i] = this->arr[i] + obj;
+		result.arr[i] += obj;
 	}
 
 	return result;
 }
 
 template <Arithmetic T>
-ColumnVector<T> ColumnVector<T>::operator- (const T obj) {
-	ColumnVector<T> result;
-	result.capacity = this->capacity;
-	result.no_elements = this->no_elements;
-	result.dim_l = this->dim_l;
-	result.arr = new T[result.capacity];
+Vector<T> Vector<T>::operator- (const T obj) {
+	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
-		result.arr[i] = this->arr[i] - obj;
+		result.arr[i] -= obj;
 	}
 
 	return result;
 }
 
 template <Arithmetic T>
-ColumnVector<T> ColumnVector<T>::operator* (const T obj) {
-	ColumnVector<T> result;
-	result.capacity = this->capacity;
-	result.no_elements = this->no_elements;
-	result.dim_l = this->dim_l;
-	result.arr = new T[result.capacity];
+Vector<T> Vector<T>::operator* (const T obj) {
+	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
-		result.arr[i] = this->arr[i] * obj;
+		result.arr[i] *= obj;
 	}
 
 	return result;
 }
 
 template <Arithmetic T>
-ColumnVector<T> ColumnVector<T>::operator/ (const T obj) {
-	ColumnVector<T> result;
-	result.capacity = this->capacity;
-	result.no_elements = this->no_elements;
-	result.dim_l = this->dim_l;
-	result.arr = new T[result.capacity];
+Vector<T> Vector<T>::operator/ (const T obj) {
+	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
-		result.arr[i] = this->arr[i] / obj;
+		result.arr[i] /= obj;
 	}
 
 	return result;
 }
 
 template <Arithmetic T>
-ColumnVector<T> ColumnVector<T>::operator+ (const ColumnVector<T> obj) {
-	if (this->dim_l != obj.dim_l) {
-		throw std::invalid_argument("Dimensions do not match");
+Vector<T> Vector<T>::operator+ (const Vector<T> obj) {
+	if (this->no_elements != obj.no_elements) {
+		throw std::invalid_argument("Vectors should have equal number of elements");
 	}
 
-	ColumnVector<T> result;
-	result.capacity = this->capacity;
-	result.no_elements = this->no_elements;
-	result.dim_l = this->dim_l;
-	result.arr = new T[result.capacity];
+	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
-		result.arr[i] = this->arr[i] + obj.arr[i];
+		result.arr[i] += obj.arr[i];
 	}
 
 	return result;
 }
 
 template <Arithmetic T>
-ColumnVector<T> ColumnVector<T>::operator- (const ColumnVector<T> obj) {
-	if (this->dim_l != obj.dim_l) {
-		throw std::invalid_argument("Dimensions do not match");
+Vector<T> Vector<T>::operator- (const Vector<T> obj) {
+	if (this->no_elements != obj.no_elements) {
+		throw std::invalid_argument("Vectors should have equal number of elements");
 	}
 
-	ColumnVector<T> result;
-	result.capacity = this->capacity;
-	result.no_elements = this->no_elements;
-	result.dim_l = this->dim_l;
-	result.arr = new T[result.capacity];
+	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
-		result.arr[i] = this->arr[i] - obj.arr[i];
+		result.arr[i] -= obj.arr[i];
 	}
 
 	return result;
+}
+
+template <Arithmetic T>
+double Vector<T>::magnitude () {
+	double result = 0;
+	for (int i = 0; i < this->no_elements; i++) {
+		result += this->arr[i] * this->arr[i];
+	}
+
+	return sqrt(result);
+}
+
+template <Arithmetic T>
+void Vector<T>::transpose () {
+	isColumn = !isColumn;
+	dim_r = dim_r ^ dim_l;
+	dim_l = dim_r ^ dim_l;
+	dim_r = dim_r ^ dim_l;
+}
+
+template <typename T, typename U>
+auto dot(const Vector<T>& v1, const Vector<U>& v2) {
+	if (v1.no_elements != v2.no_elements) {
+		throw std::invalid_argument("Vectors should have equal number of elements");
+	}
+
+	using ReturnType = std::conditional_t<std::is_same_v<T, int> && std::is_same_v<U, int>, int, double>;
+	ReturnType result = 0;
+	for (int i = 0; i < v1.no_elements; i++) {
+		result += v1.arr[i] * v2.arr[i];
+	}
+
+	return result;
+}
+
+template <typename T>
+double euclidean_distance(const Vector<T>& v1, const Vector<T>& v2) {
+	if (v1.no_elements != v2.no_elements) {
+		throw std::invalid_argument("Vectors should have equal number of elements");
+	}
+
+	double result = 0;
+	for (int i = 0; i < v1.no_elements; i++) {
+		result += (v1.arr[i] - v2.arr[i]) * (v1.arr[i] - v2.arr[i]);
+	}
+
+	return sqrt(result);
 }
 
 #endif
