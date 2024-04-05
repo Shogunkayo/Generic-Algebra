@@ -54,13 +54,13 @@ class VectorContainer {
 		~VectorContainer();
 
 		void resize();
-		void push_back(T key);
-		void insert(T key, int index);
+		void push_back(const T key);
+		void insert(const T key, const int index);
 		void pop();
 
-		T& at(int index);
-		T& operator[](int index);
-		const T& operator[](int index) const;
+		T& at(const int index);
+		T& operator[](const int index);
+		const T& operator[](const int index) const;
 
 		int size();
 		int getcapacity();
@@ -90,7 +90,7 @@ void VectorContainer<T>::resize() {
 }
 
 template <typename T>
-void VectorContainer<T>::push_back(T key) {
+void VectorContainer<T>::push_back(const T key) {
     if (no_elements == capacity) {
         resize();
     }
@@ -98,7 +98,7 @@ void VectorContainer<T>::push_back(T key) {
 }
 
 template <typename T>
-void VectorContainer<T>::insert(T key, int index) {
+void VectorContainer<T>::insert(const T key, const int index) {
     if (index < 0) {
         throw std::out_of_range("Index must be positive");
     }
@@ -120,7 +120,7 @@ void VectorContainer<T>::insert(T key, int index) {
 }
 
 template <typename T>
-T& VectorContainer<T>::at(int index) {
+T& VectorContainer<T>::at(const int index) {
     if (index < 0 || index > no_elements - 1) {
         throw std::out_of_range("Index out of bounds");
     }
@@ -128,7 +128,7 @@ T& VectorContainer<T>::at(int index) {
 }
 
 template <typename T>
-T& VectorContainer<T>::operator[](int index) {
+T& VectorContainer<T>::operator[](const int index) {
     if (index < 0 || index > no_elements - 1) {
         throw std::out_of_range("Index out of bounds");
     }
@@ -136,7 +136,7 @@ T& VectorContainer<T>::operator[](int index) {
 }
 
 template <typename T>
-const T& VectorContainer<T>::operator[](int index) const {
+const T& VectorContainer<T>::operator[](const int index) const {
     if (index < 0 || index > no_elements - 1) {
         throw std::out_of_range("Index out of bounds");
     }
@@ -214,8 +214,8 @@ class Vector : public VectorContainer<T> {
 			return (*this);
 		}
 		
-		void push_back(T key);
-		void insert(T key, int index);
+		void push_back(const T key);
+		void insert(const T key, const int index);
 		void pop();
 
 		VectorContainer<int> get_dimensions();
@@ -231,17 +231,26 @@ class Vector : public VectorContainer<T> {
 		void transpose();
 
 		friend double euclidean_distance<>(const Vector<T>& v1, const Vector<T>& v2);
+
+		template <typename Func>
+		void map(Func&& func) {
+			for (int i = 0; i < this->no_elements; i++) {
+				this->arr[i] = func(this->arr[i]);
+			}
+		}
+
+		void square();
 }; 
 
 template <Arithmetic T>
-void Vector<T>::push_back(T key) {
+void Vector<T>::push_back(const T key) {
 	VectorContainer<T>::push_back(key);
 	dim_r += !isColumn;
 	dim_l += isColumn;
 }
 
 template <Arithmetic T>
-void Vector<T>::insert(T key, int index) {
+void Vector<T>::insert(const T key, const int index) {
 	VectorContainer<T>::insert(key, index);
 	dim_r += !isColumn;
 	dim_l += isColumn;
@@ -351,6 +360,20 @@ void Vector<T>::transpose () {
 	dim_r = dim_r ^ dim_l;
 }
 
+template <typename T>
+double euclidean_distance(const Vector<T>& v1, const Vector<T>& v2) {
+	if (v1.no_elements != v2.no_elements) {
+		throw std::invalid_argument("Vectors should have equal number of elements");
+	}
+
+	double result = 0;
+	for (int i = 0; i < v1.no_elements; i++) {
+		result += (v1.arr[i] - v2.arr[i]) * (v1.arr[i] - v2.arr[i]);
+	}
+
+	return sqrt(result);
+}
+
 template <typename T, typename U>
 auto dot(const Vector<T>& v1, const Vector<U>& v2) {
 	if (v1.no_elements != v2.no_elements) {
@@ -366,18 +389,8 @@ auto dot(const Vector<T>& v1, const Vector<U>& v2) {
 	return result;
 }
 
-template <typename T>
-double euclidean_distance(const Vector<T>& v1, const Vector<T>& v2) {
-	if (v1.no_elements != v2.no_elements) {
-		throw std::invalid_argument("Vectors should have equal number of elements");
-	}
-
-	double result = 0;
-	for (int i = 0; i < v1.no_elements; i++) {
-		result += (v1.arr[i] - v2.arr[i]) * (v1.arr[i] - v2.arr[i]);
-	}
-
-	return sqrt(result);
+template <Arithmetic T>
+void Vector<T>::square () {
+	this->map([] <Arithmetic U> (U a) {return a * a;});
 }
-
 #endif
