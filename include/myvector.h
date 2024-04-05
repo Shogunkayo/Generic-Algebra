@@ -1,29 +1,77 @@
 #ifndef MYVECTOR_H
 #define MYVECTOR_H
 
+#include <initializer_list>
 #include <stdexcept>
 
 template<typename T>
 class Vector {
-	private:
+	public:
 		T* arr;
 		int capacity;
 		int no_elements;
+	
+		Vector () : arr(new T[1]), capacity(1), no_elements(0) {}
+		Vector (std::initializer_list<T> init): capacity(init.size()), no_elements(init.size()) {
+			arr = new T[capacity];
+			auto first = init.begin();
+			auto last = init.end();
+			for (int i = 0; first != last ; ++i, (void)++first)
+				arr[i] = *first;
+		}
+		Vector (Vector &obj) {
+			capacity = obj.capacity;
+			no_elements = obj.no_elements;
+			arr = new T[capacity];
+
+			for (int i = 0; i < no_elements; i++) {
+				arr[i] = obj.arr[i];
+			}
+
+		}
+		Vector& operator= (Vector &obj) {
+			if (this->capacity != obj.capacity) {
+				if constexpr (std::is_class<T>::value) {
+					for (int i = 0; i < this->no_elements; i++) {
+						this->arr[i].~T();
+					}
+				}
+				delete[] this->arr;
+				this->capacity = obj.capacity;
+				this->arr = new T[this->capacity];
+			}
+
+			for (int i = 0; i < obj.no_elements; i++) {
+				this->arr[i] = obj.arr[i];
+			}
+
+			this->no_elements = obj.no_elements;
+			return (*this);
+		}
+		~Vector();
 
 		void resize();
-	
-	public:
-		Vector();
-		~Vector();
 		void push_back(T key);
 		void insert(T key, int index);
+		void pop();
+
 		T& at(int index);
 		T& operator[](int index);
 		const T& operator[](int index) const;
-		void pop();
+
 		int size();
 		int getcapacity();
 };
+
+template <typename T>
+Vector<T>::~Vector() {
+    if constexpr (std::is_class<T>::value) {
+        for (int i = 0; i < no_elements; i++) {
+            arr[i].~T();
+        }
+    }
+    delete[] arr;
+}
 
 template <typename T>
 void Vector<T>::resize() {
@@ -36,23 +84,6 @@ void Vector<T>::resize() {
 	delete[] arr;
 	arr = new_arr;
 	capacity *= 2;
-}
-
-template <typename T>
-Vector<T>::Vector() {
-    arr = new T[1];
-    capacity = 1;
-    no_elements = 0;
-}
-
-template <typename T>
-Vector<T>::~Vector() {
-    if constexpr (std::is_class<T>::value) {
-        for (int i = 0; i < no_elements; i++) {
-            arr[i].~T();
-        }
-    }
-    delete[] arr;
 }
 
 template <typename T>
