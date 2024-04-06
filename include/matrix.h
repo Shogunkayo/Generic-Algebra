@@ -10,7 +10,12 @@ template <typename T>
 class Matrix
 {
 public:
-    
+    Vector <Vector<T>>* matrix;
+
+    Matrix()
+    {
+        matrix = new Vector <Vector<T>>();
+    }
 };
 
 #endif
