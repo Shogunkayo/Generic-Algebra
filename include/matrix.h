@@ -20,6 +20,8 @@ public:
     Matrix(std::initializer_list<T> init);
     ~Matrix();
 
+    VectorContainer<T> operator [](const int row);
+
     void displayMatrix();
 };
 
@@ -82,6 +84,12 @@ Matrix<T, rows, cols>::~Matrix()
 
     delete matrix;
 }
+
+template <typename T, int rows, int cols>
+VectorContainer<T> Matrix<T, rows, cols>::operator [](const int row)
+{
+    return *((*matrix)[row]);
+} 
 
 template <typename T, int rows, int cols>
 void Matrix<T, rows, cols>::displayMatrix()
