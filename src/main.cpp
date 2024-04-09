@@ -18,19 +18,25 @@ int main (int argc, char *argv[]) {
 	// 	std::cout << x[i] << std::endl;
 	// }
 
-	Matrix <int> x;
-	Matrix <double, 2, 3> y({1.1, 1.2, 1.3, 2.1, 2.2, 2.3});
+	// Matrix <int> x;
+	// Matrix <double, 2, 3> y({1.1, 1.2, 1.3, 2.1, 2.2, 2.3});
 
 	// x.displayMatrix();
-	y.displayMatrix();
+	// y.displayMatrix();
 
-	std::cout << std::endl << std::endl;
+	// std::cout << std::endl << std::endl;
 
 	// std::cout << y[0][2] << std::endl;
 	// std::cout << y[1][1] << std::endl;
 
-	y[0][0] = 5;
-	y.displayMatrix();
+	// y[0][0] = 5;
+	// y.displayMatrix();
+
+	Matrix <int, 2, 2> x({1, 2, 1, 2});
+	Matrix <int, 2, 2> y({2, 1, 2, 1});
+
+	Matrix <int, 2, 2> z = x + 1;
+	z.displayMatrix();
 
 	return 0;
 }

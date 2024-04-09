@@ -22,6 +22,15 @@ public:
 
     VectorContainer<T>& operator [](const int row);
 
+    Matrix<T, rows, cols> operator+(const T obj);
+    Matrix<T> operator-(const T obj);
+    Matrix<T> operator*(const T obj);
+    Matrix<T> operator/(const T obj);
+
+    Matrix<T> operator+(const Matrix<T> m);
+    Matrix<T> operator-(const Matrix<T> m);
+    Matrix<T> operator*(const Matrix<T> m);
+
     void displayMatrix();
 };
 
@@ -90,6 +99,18 @@ VectorContainer<T>& Matrix<T, rows, cols>::operator [](const int row)
 {
     return *((*matrix)[row]);
 } 
+
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(const T obj)
+{
+    Matrix <T, rows, cols> res = (*this);
+
+    for(int i = 0; i < rows; i++)
+        for(int j = 0; j < cols; j++)
+            res[i][j] += obj;
+
+    return res;
+}
 
 template <typename T, int rows, int cols>
 void Matrix<T, rows, cols>::displayMatrix()
