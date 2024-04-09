@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include <iostream>
 
-template <typename T>
+template <typename T, int rows = 0, int cols = 0>
 class Matrix
 {
 public:
@@ -19,17 +19,12 @@ public:
     Matrix()
     {
         matrix = new VectorContainer <VectorContainer<T>*>();
-        no_rows = 0;
-        no_cols = 0;
-    }
-
-    Matrix(int rows, int cols)
-    {
-        matrix = new VectorContainer <VectorContainer<T>*>();
         this->no_rows = rows;
         this->no_cols = cols;
 
-        while(rows != 0)
+        int curr_rows = rows;
+
+        while(curr_rows != 0)
         {
             VectorContainer <T>* temp = new VectorContainer <T>();
 
@@ -40,13 +35,34 @@ public:
 
             matrix->push_back(temp);
 
-            rows--;
+            curr_rows--;
         }
     }
 
-    Matrix(int rows, int cols, std::initializer_list<T> init)
+    Matrix(std::initializer_list<T> init)
     {
-        
+        matrix = new VectorContainer <VectorContainer<T>*>();
+        this->no_rows = rows;
+        this->no_cols = cols;
+
+        int curr_rows = rows;
+
+        auto first = init.begin();
+        auto last = init.end();
+
+        while(curr_rows != 0 && first != last)
+        {
+            VectorContainer <T>* temp = new VectorContainer <T>();
+
+            for(int i = 0; i < cols; i++, (void)++first)
+            {
+                temp->push_back(*first);
+            }
+
+            matrix->push_back(temp);
+
+            curr_rows--;
+        }
     }
 
     ~Matrix()
@@ -60,8 +76,8 @@ public:
     void displayMatrix();
 };
 
-template <typename T>
-void Matrix<T>::displayMatrix()
+template <typename T, int rows, int cols>
+void Matrix<T, rows, cols>::displayMatrix()
 {
     for(int i = 0; i < this->no_rows; i++)
     {

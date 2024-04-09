@@ -18,9 +18,11 @@ int main (int argc, char *argv[]) {
 	// 	std::cout << x[i] << std::endl;
 	// }
 
-	Matrix <int> x(2, 2);
+	Matrix <int, 2, 2> x;
+	Matrix <double, 2, 3> y({1.1, 1.2, 1.3, 2.1, 2.2, 2.3});
 
-	x.displayMatrix();
+	// x.displayMatrix();
+	y.displayMatrix();
 
 	return 0;
 }
