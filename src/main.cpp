@@ -22,10 +22,15 @@ int main (int argc, char *argv[]) {
 	Matrix <double, 2, 3> y({1.1, 1.2, 1.3, 2.1, 2.2, 2.3});
 
 	// x.displayMatrix();
-	//y.displayMatrix();
+	y.displayMatrix();
 
-	std::cout << y[0][2] << std::endl;
-	std::cout << y[1][1] << std::endl;
+	std::cout << std::endl << std::endl;
+
+	// std::cout << y[0][2] << std::endl;
+	// std::cout << y[1][1] << std::endl;
+
+	y[0][0] = 5;
+	y.displayMatrix();
 
 	return 0;
 }
