@@ -44,6 +44,11 @@ public:
         }
     }
 
+    Matrix(int rows, int cols, std::initializer_list<T> init)
+    {
+        
+    }
+
     ~Matrix()
     {
         for(int i = 0; i < matrix->size(); i++)
@@ -52,24 +57,22 @@ public:
         delete matrix;
     }
 
-    void displayMatrix()
-    {
-        for(int i = 0; i < this->no_rows; i++)
-        {
-            std::cout << std::endl;
-            VectorContainer <int> currRow = *((*matrix)[i]);
-
-            for(int j = 0; j < this->no_cols; j++)
-                std::cout << currRow[j] << " ";
-
-            std::cout << std::endl;
-        }
-    }
-
-    // Matrix(int rows, int cols, std::initializer_list<T> init)
-    // {
-        
-    // }
+    void displayMatrix();
 };
+
+template <typename T>
+void Matrix<T>::displayMatrix()
+{
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        std::cout << std::endl;
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+            std::cout << currRow[j] << " ";
+
+        std::cout << std::endl;
+    }
+}
 
 #endif
