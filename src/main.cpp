@@ -35,8 +35,21 @@ int main (int argc, char *argv[]) {
 	Matrix <int, 2, 2> x({1, 2, 1, 2});
 	Matrix <int, 2, 2> y({2, 1, 2, 1});
 
-	Matrix <int, 2, 2> z = x + 1;
-	z.displayMatrix();
+	Matrix <int, 2, 2> z{{2, 2, 2, 2}};
+	// Matrix <int, 2, 2> z = x + 1;
+	// z.displayMatrix();
+
+	// y.displayMatrix();
+
+	// y = x;
+	// std::cout << std::endl;
+
+	x.displayMatrix();
+
+	x = z / 2;
+	std::cout << std::endl;
+
+	x.displayMatrix();
 
 	return 0;
 }

@@ -7,6 +7,7 @@
 #include <concepts>
 #include <initializer_list>
 #include <iostream>
+#include <typeinfo>
 
 template <typename T, int rows = 0, int cols = 0>
 class Matrix
@@ -21,11 +22,13 @@ public:
     ~Matrix();
 
     VectorContainer<T>& operator [](const int row);
+    
+    Matrix<T, rows, cols>& operator =(Matrix<T, rows, cols>& other);
 
-    Matrix<T, rows, cols> operator+(const T obj);
-    Matrix<T> operator-(const T obj);
-    Matrix<T> operator*(const T obj);
-    Matrix<T> operator/(const T obj);
+    Matrix<T, rows, cols>& operator+(const T obj);
+    Matrix<T, rows, cols>& operator-(const T obj);
+    Matrix<T, rows, cols>& operator*(const T obj);
+    Matrix<T, rows, cols>& operator/(const T obj);
 
     Matrix<T> operator+(const Matrix<T> m);
     Matrix<T> operator-(const Matrix<T> m);
@@ -101,15 +104,98 @@ VectorContainer<T>& Matrix<T, rows, cols>::operator [](const int row)
 } 
 
 template <typename T, int rows, int cols>
-Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(const T obj)
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols>& other)
 {
-    Matrix <T, rows, cols> res = (*this);
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        *((*matrix)[i]) = other[i];
+    }
 
-    for(int i = 0; i < rows; i++)
-        for(int j = 0; j < cols; j++)
-            res[i][j] += obj;
+    return (*this);
+} 
 
-    return res;
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator +(const T obj)
+{
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        std::cout << std::endl;
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+        {
+            currRow[j] += obj;
+        }
+
+        *((*matrix)[i]) = currRow;
+
+        std::cout << std::endl;
+    }
+
+    return (*this);
+}
+
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator -(const T obj)
+{
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        std::cout << std::endl;
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+        {
+            currRow[j] -= obj;
+        }
+
+        *((*matrix)[i]) = currRow;
+
+        std::cout << std::endl;
+    }
+
+    return (*this);
+}
+
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator *(const T obj)
+{
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        std::cout << std::endl;
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+        {
+            currRow[j] *= obj;
+        }
+
+        *((*matrix)[i]) = currRow;
+
+        std::cout << std::endl;
+    }
+
+    return (*this);
+}
+
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator /(const T obj)
+{
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        std::cout << std::endl;
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+        {
+            currRow[j] /= obj;
+        }
+
+        *((*matrix)[i]) = currRow;
+
+        std::cout << std::endl;
+    }
+
+    return (*this);
 }
 
 template <typename T, int rows, int cols>
