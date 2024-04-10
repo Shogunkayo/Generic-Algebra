@@ -30,9 +30,9 @@ public:
     Matrix<T, rows, cols>& operator*(const T obj);
     Matrix<T, rows, cols>& operator/(const T obj);
 
-    Matrix<T> operator+(const Matrix<T> m);
-    Matrix<T> operator-(const Matrix<T> m);
-    Matrix<T> operator*(const Matrix<T> m);
+    Matrix<T, rows, cols>& operator+(Matrix<T, rows, cols>& m);
+    Matrix<T, rows, cols>& operator-(Matrix<T, rows, cols>& m);
+    // Matrix<T, rows, cols>& operator*(Matrix<T, rows, cols>& m);
 
     void displayMatrix();
 };
@@ -197,6 +197,54 @@ Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator /(const T obj)
 
     return (*this);
 }
+
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator +(Matrix<T, rows, cols>& m)
+{
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        std::cout << std::endl;
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+        {
+            currRow[j] += m[i][j];
+        }
+
+        *((*matrix)[i]) = currRow;
+
+        std::cout << std::endl;
+    }
+
+    return (*this);   
+}
+
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m)
+{
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        std::cout << std::endl;
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+        {
+            currRow[j] -= m[i][j];
+        }
+
+        *((*matrix)[i]) = currRow;
+
+        std::cout << std::endl;
+    }
+
+    return (*this);   
+}
+
+// template <typename T, int rows, int cols>
+// Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator *(Matrix<T, rows, cols>& m)
+// {
+    
+// }
 
 template <typename T, int rows, int cols>
 void Matrix<T, rows, cols>::displayMatrix()
