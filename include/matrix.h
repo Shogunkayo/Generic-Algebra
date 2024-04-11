@@ -9,7 +9,10 @@
 #include <iostream>
 #include <typeinfo>
 
-template <typename T, int rows = 0, int cols = 0>
+template <typename T>
+concept Numeric = std::integral<T> || std::floating_point<T>;
+
+template <Numeric T, int rows = 0, int cols = 0>
 class Matrix
 {
 public:
@@ -40,7 +43,7 @@ public:
     void displayMatrix();
 };
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>::Matrix()
 {
     matrix = new VectorContainer <VectorContainer<T>*>();
@@ -64,7 +67,7 @@ Matrix<T, rows, cols>::Matrix()
     }
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>::Matrix(std::initializer_list<T> init)
 {
     matrix = new VectorContainer <VectorContainer<T>*>();
@@ -91,7 +94,7 @@ Matrix<T, rows, cols>::Matrix(std::initializer_list<T> init)
     }
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>::~Matrix()
 {
     for(int i = 0; i < matrix->size(); i++)
@@ -100,13 +103,13 @@ Matrix<T, rows, cols>::~Matrix()
     delete matrix;
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 VectorContainer<T>& Matrix<T, rows, cols>::operator [](const int row)
 {
     return *((*matrix)[row]);
 } 
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols>& other)
 {
     for(int i = 0; i < this->no_rows; i++)
@@ -117,7 +120,7 @@ Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols>& 
     return (*this);
 } 
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols> other)
 {
     for(int i = 0; i < this->no_rows; i++)
@@ -128,7 +131,7 @@ Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols> o
     return (*this);
 } 
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(T obj)
 {
     Matrix <T, rows, cols> res;
@@ -146,7 +149,7 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(T obj)
     return res;
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(T obj)
 {
     Matrix <T, rows, cols> res;
@@ -164,7 +167,7 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(T obj)
     return res;
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols> Matrix<T, rows, cols>::operator *(T obj)
 {
     Matrix <T, rows, cols> res;
@@ -182,7 +185,7 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator *(T obj)
     return res;
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols> Matrix<T, rows, cols>::operator /(T obj)
 {
     Matrix <T, rows, cols> res;
@@ -200,7 +203,7 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator /(T obj)
     return res;
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(Matrix<T, rows, cols>& m)
 {  
     Matrix <T, rows, cols> res;
@@ -218,7 +221,7 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(Matrix<T, rows, cols>& m
     return res;
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m)
 {  
     Matrix <T, rows, cols> res;
@@ -236,7 +239,7 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m
     return res;
 }
 
-template <typename U, int rows1, int cols1, int rows2, int cols2>
+template <Numeric U, int rows1, int cols1, int rows2, int cols2>
 Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, cols2>& m2)
 {
     Matrix <U, rows1, cols2> res;
@@ -255,7 +258,7 @@ Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, c
     return res;
 }
 
-template <typename T, int rows, int cols>
+template <Numeric T, int rows, int cols>
 void Matrix<T, rows, cols>::displayMatrix()
 {
     for(int i = 0; i < this->no_rows; i++)
