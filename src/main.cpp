@@ -18,38 +18,55 @@ int main (int argc, char *argv[]) {
 	// 	std::cout << x[i] << std::endl;
 	// }
 
-	// Matrix <int> x;
-	// Matrix <double, 2, 3> y({1.1, 1.2, 1.3, 2.1, 2.2, 2.3});
-
-	// x.displayMatrix();
-	// y.displayMatrix();
-
-	// std::cout << std::endl << std::endl;
-
-	// std::cout << y[0][2] << std::endl;
-	// std::cout << y[1][1] << std::endl;
-
-	// y[0][0] = 5;
-	// y.displayMatrix();
-
 	Matrix <int, 2, 2> x({1, 2, 1, 2});
 	Matrix <int, 2, 2> y({2, 1, 2, 1});
 
-	Matrix <int, 3, 2> a{{2, 2, 2, 2, 2, 2}};
-	Matrix <int, 3, 2> b;
-	// Matrix <int, 2, 2> z = x + 1;
-	// z.displayMatrix();
+	Matrix <int, 2, 3> b{{2, 2, 2, 2, 2, 2}};
+	Matrix <int, 3, 2> a({1, 1, 1, 1, 1, 1});
 
-	// y.displayMatrix();
-
-	// y = x;
+	// Overloaded + for single integer
+	// Matrix <int, 2, 2> c;
+	// c = x + 1;
+	// c.displayMatrix();
 	// std::cout << std::endl;
 
-	x.displayMatrix();
+	// x.displayMatrix();
+	// x = x + 2;
+	// std::cout << std::endl;
+	// x.displayMatrix();
 
-	x = x * y;
+	// std::cout << std::endl;
+	// Matrix <int, 2, 2> d = y * 3;
+	// d.displayMatrix();
+
+
+	// Overloaded + for 2 matrices
+	// Matrix <int, 2, 2> c;
+	// c = x + y;
+	// c.displayMatrix();
+
+	// std::cout << std::endl;
+
+	// Matrix <int, 2, 2> d = x + y;
+	// d.displayMatrix();
+
+	// std::cout << std::endl;
+
+	// y = x - y;
+	// y.displayMatrix();
+
+	Matrix <int, 2, 2> c;
+	c = multiply<int, 2, 2, 2, 2>(x, y);
+	c.displayMatrix();
+
 	std::cout << std::endl;
 
+	Matrix <int, 3, 3> d = multiply<int, 3, 2, 2, 3>(a, b);
+	d.displayMatrix();
+
+	std::cout << std::endl;
+
+	x = multiply<int, 2, 2, 2, 2>(x, y) + 2;
 	x.displayMatrix();
 
 	return 0;

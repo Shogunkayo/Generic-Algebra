@@ -24,15 +24,18 @@ public:
     VectorContainer<T>& operator [](const int row);
     
     Matrix<T, rows, cols>& operator =(Matrix<T, rows, cols>& other);
+    Matrix<T, rows, cols>& operator =(Matrix<T, rows, cols> other);
 
-    Matrix<T, rows, cols>& operator+(const T obj);
-    Matrix<T, rows, cols>& operator-(const T obj);
-    Matrix<T, rows, cols>& operator*(const T obj);
-    Matrix<T, rows, cols>& operator/(const T obj);
+    Matrix<T, rows, cols> operator+(T obj);
+    Matrix<T, rows, cols> operator-(T obj);
+    Matrix<T, rows, cols> operator*(T obj);
+    Matrix<T, rows, cols> operator/(T obj);
 
-    Matrix<T, rows, cols>& operator+(Matrix<T, rows, cols>& m);
-    Matrix<T, rows, cols>& operator-(Matrix<T, rows, cols>& m);
-    // Matrix<T, rows, cols>& operator*(Matrix<T, rows, cols>& m);
+    Matrix<T, rows, cols> operator+(Matrix<T, rows, cols>& m);
+    Matrix<T, rows, cols> operator-(Matrix<T, rows, cols>& m);
+
+    template <typename U, int rows1, int cols1, int rows2, int cols2>
+    friend Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, cols2>& m2);
 
     void displayMatrix();
 };
@@ -115,136 +118,142 @@ Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols>& 
 } 
 
 template <typename T, int rows, int cols>
-Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator +(const T obj)
+Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols> other)
 {
     for(int i = 0; i < this->no_rows; i++)
     {
-        std::cout << std::endl;
-        VectorContainer <T> currRow = *((*matrix)[i]);
-
-        for(int j = 0; j < this->no_cols; j++)
-        {
-            currRow[j] += obj;
-        }
-
-        *((*matrix)[i]) = currRow;
-
-        std::cout << std::endl;
+        *((*matrix)[i]) = other[i];
     }
 
     return (*this);
-}
+} 
 
 template <typename T, int rows, int cols>
-Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator -(const T obj)
+Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(T obj)
 {
+    Matrix <T, rows, cols> res;
+
     for(int i = 0; i < this->no_rows; i++)
     {
-        std::cout << std::endl;
         VectorContainer <T> currRow = *((*matrix)[i]);
 
         for(int j = 0; j < this->no_cols; j++)
         {
-            currRow[j] -= obj;
+            res[i][j] = currRow[j] + obj;
         }
-
-        *((*matrix)[i]) = currRow;
-
-        std::cout << std::endl;
     }
 
-    return (*this);
+    return res;
 }
 
 template <typename T, int rows, int cols>
-Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator *(const T obj)
+Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(T obj)
 {
+    Matrix <T, rows, cols> res;
+
     for(int i = 0; i < this->no_rows; i++)
     {
-        std::cout << std::endl;
         VectorContainer <T> currRow = *((*matrix)[i]);
 
         for(int j = 0; j < this->no_cols; j++)
         {
-            currRow[j] *= obj;
+            res[i][j] = currRow[j] - obj;
         }
-
-        *((*matrix)[i]) = currRow;
-
-        std::cout << std::endl;
     }
 
-    return (*this);
+    return res;
 }
 
 template <typename T, int rows, int cols>
-Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator /(const T obj)
+Matrix<T, rows, cols> Matrix<T, rows, cols>::operator *(T obj)
 {
+    Matrix <T, rows, cols> res;
+
     for(int i = 0; i < this->no_rows; i++)
     {
-        std::cout << std::endl;
         VectorContainer <T> currRow = *((*matrix)[i]);
 
         for(int j = 0; j < this->no_cols; j++)
         {
-            currRow[j] /= obj;
+            res[i][j] = currRow[j] * obj;
         }
-
-        *((*matrix)[i]) = currRow;
-
-        std::cout << std::endl;
     }
 
-    return (*this);
+    return res;
 }
 
 template <typename T, int rows, int cols>
-Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator +(Matrix<T, rows, cols>& m)
+Matrix<T, rows, cols> Matrix<T, rows, cols>::operator /(T obj)
 {
+    Matrix <T, rows, cols> res;
+
     for(int i = 0; i < this->no_rows; i++)
     {
-        std::cout << std::endl;
         VectorContainer <T> currRow = *((*matrix)[i]);
 
         for(int j = 0; j < this->no_cols; j++)
         {
-            currRow[j] += m[i][j];
+            res[i][j] = currRow[j] / obj;
         }
-
-        *((*matrix)[i]) = currRow;
-
-        std::cout << std::endl;
     }
 
-    return (*this);   
+    return res;
 }
 
 template <typename T, int rows, int cols>
-Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m)
-{
+Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(Matrix<T, rows, cols>& m)
+{  
+    Matrix <T, rows, cols> res;
+
     for(int i = 0; i < this->no_rows; i++)
     {
-        std::cout << std::endl;
         VectorContainer <T> currRow = *((*matrix)[i]);
 
         for(int j = 0; j < this->no_cols; j++)
         {
-            currRow[j] -= m[i][j];
+            res[i][j] = currRow[j] + m[i][j];
         }
-
-        *((*matrix)[i]) = currRow;
-
-        std::cout << std::endl;
     }
 
-    return (*this);   
+    return res;
 }
 
-// template <typename T, int rows, int cols>
-// Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator *(Matrix<T, rows, cols>& m)
-// {
-    
-// }
+template <typename T, int rows, int cols>
+Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m)
+{  
+    Matrix <T, rows, cols> res;
+
+    for(int i = 0; i < this->no_rows; i++)
+    {
+        VectorContainer <T> currRow = *((*matrix)[i]);
+
+        for(int j = 0; j < this->no_cols; j++)
+        {
+            res[i][j] = currRow[j] - m[i][j];
+        }
+    }
+
+    return res;
+}
+
+template <typename U, int rows1, int cols1, int rows2, int cols2>
+Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, cols2>& m2)
+{
+    Matrix <U, rows1, cols2> res;
+
+    for(int i = 0; i < rows1; i++)
+    {
+        for(int j = 0; j < cols2; j++)
+        {
+            for(int k = 0; k < rows2; k++)
+            {
+                res[i][j] += m1[i][k] * m2[k][j];
+            }
+        }
+    }
+
+    return res;
+}
 
 template <typename T, int rows, int cols>
 void Matrix<T, rows, cols>::displayMatrix()
