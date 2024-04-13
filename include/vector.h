@@ -5,7 +5,10 @@
 #include <initializer_list>
 #include <stdexcept>
 #include <type_traits>
-#include "./complexnumber.h"
+#include <iostream>
+#include <variant>
+#include "complexnumber.h"
+#include "data.h"
 
 template<typename T>
 class VectorContainer {
@@ -62,8 +65,8 @@ class VectorContainer {
 		T& operator[](const int index);
 		const T& operator[](const int index) const;
 
-		int size();
-		int getcapacity();
+		int size() const;
+		int getcapacity() const;
 };
 
 template <typename T>
@@ -149,12 +152,12 @@ void VectorContainer<T>::pop() {
 }
 
 template <typename T>
-int VectorContainer<T>::size() {
+int VectorContainer<T>::size() const {
     return no_elements;
 }
 
 template <typename T>
-int VectorContainer<T>::getcapacity() {
+int VectorContainer<T>::getcapacity() const {
     return capacity;
 }
 
@@ -224,8 +227,8 @@ class Vector : public VectorContainer<T> {
 		Vector<T> operator- (const T obj);
 		Vector<T> operator* (const T obj);
 		Vector<T> operator/ (const T obj);
-		Vector<T> operator+ (const Vector<T> obj);
-		Vector<T> operator- (const Vector<T> obj);
+		Vector<T> operator+ (Vector<T> obj);
+		Vector<T> operator- (Vector<T> obj);
 
 		double magnitude();
 		void transpose();
@@ -393,4 +396,137 @@ template <Arithmetic T>
 void Vector<T>::square () {
 	this->map([] <Arithmetic U> (U a) {return a * a;});
 }
+
+// ----------------------------------------------------------------------------
+
+class MultiVector {
+    public:
+        Vector<Data> vector;
+
+        MultiVector() = default;
+
+        template <typename... Args>
+        MultiVector(Args&&... args) {
+            (push_back(args), ...);
+        }
+
+        template <typename T>
+        void push_back(const T& value) {
+            Data data;
+            if constexpr (std::is_same_v<T, char>) {
+                data.type = DataType::CHAR;
+                data.value.c_val = value;
+            }
+            else if constexpr (std::is_same_v<T, int>) {
+                data.type = DataType::INT;
+                data.value.i_val = value;
+            }
+            else if constexpr (std::is_same_v<T, float>) {
+                data.type = DataType::FLOAT;
+                data.value.f_val = value;
+            }
+            else if constexpr (std::is_same_v<T, double>) {
+                data.type = DataType::DOUBLE;
+                data.value.d_val = value;
+            }
+            else {
+                throw std::invalid_argument("Invalid type");
+            }
+
+            vector.push_back(data);
+        }
+
+        template <typename T>
+        T at(const int index) {
+            Data& data = vector.at(index);
+            if (data.type == DataType::CHAR) {
+                return data.value.c_val;
+            }
+            else if (data.type == DataType::INT) {
+                return data.value.i_val;
+            }
+            else if (data.type == DataType::FLOAT) {
+                return data.value.f_val;
+            }
+            else if (data.type == DataType::DOUBLE) {
+                return data.value.d_val;
+            }
+            else {
+                throw std::invalid_argument("Invalid type");
+                return 0;
+            }
+        }
+
+        void transpose() {
+            vector.transpose();
+        }
+
+        Data& operator[](const int index) {
+            if (index >= vector.size()) {
+                throw std::out_of_range("Index out of bounds");
+            } 
+
+            return vector[index];
+        }
+
+        MultiVector operator+(const Data obj) {
+            MultiVector result;
+            result.vector = vector + obj;
+            
+            return result;
+        }
+
+        MultiVector operator+(MultiVector& obj) {
+            if (vector.size() != obj.vector.size()) {
+                throw std::invalid_argument("MultiVectors should have equal number of elements");
+            }
+
+            MultiVector result;
+            result.vector = vector + obj.vector;
+
+            return result;
+        }
+
+        MultiVector operator-(MultiVector& obj) {
+            if (vector.size() != obj.vector.size()) {
+                throw std::invalid_argument("MultiVectors should have equal number of elements");
+            }
+
+            MultiVector result;
+            result.vector = vector - obj.vector;
+
+            return result;
+        }
+        void square() {
+            vector.square();
+        }
+
+        template <typename Func>
+        void map(Func &&func) {
+            vector.map(func);
+        }
+
+        double magnitude() {
+            Data result(0.0); 
+            for (int i = 0; i < vector.size(); i++) {
+                result += vector[i] * vector[i];
+            }
+
+            return sqrt(result.value.d_val);
+        }
+};
+
+double dot(MultiVector mv1, MultiVector mv2) {
+    if (mv1.vector.size() != mv2.vector.size()) {
+		throw std::invalid_argument("MultiVectors should have equal number of elements");
+	}
+    
+    Data result(0.0);
+    for (int i = 0; i < mv1.vector.size(); i++) {
+        result += mv1.vector[i] * mv2.vector[i];
+    }
+
+    return result.value.d_val;
+}
+
 #endif
