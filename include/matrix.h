@@ -297,4 +297,62 @@ void Matrix<T, rows, cols>::displayMatrix()
     }
 }
 
+template <Numeric T, int rows, int cols>
+Matrix<T, cols, rows> transpose(Matrix<T, rows, cols>& m)
+{
+    Matrix <T, cols, rows> res;
+
+    for(int i = 0; i < cols; i++)
+        for(int j = 0; j < rows; j++)
+            res[i][j] = m[j][i];
+
+    return res;
+}
+
+template <Numeric T, int rows, int cols>
+void luDecomposition(Matrix<T, rows, cols>& m)
+{
+    VectorContainer <Matrix<T, rows, cols>> res;
+
+    Matrix <T, rows, cols> upper;
+    Matrix <T, rows, cols> lower;
+
+    int n = rows;
+
+    for(int i = 0; i < n; i++)
+    {
+        for(int k = i; k < n; k++)
+        {
+            int sum = 0;
+
+            for(int j = 0; j < i; j++)
+                sum += (lower[i][j] * upper[j][k]);
+
+            upper[i][k] = m[i][k] - sum;
+        }
+
+        for(int k = i; k < n; k++)
+        {
+            if(i == k)
+                lower[i][i] = 1;
+
+            else
+            {
+                int sum = 0;
+
+                for(int j = 0; j < i; j++)
+                    sum += (lower[k][j] * upper[j][i]);
+
+                lower[k][i] = (m[k][i] - sum) / upper[i][i];
+            }
+        }
+    }
+
+    lower.displayMatrix();
+    std::cout << std::endl;
+
+    upper.displayMatrix();
+    std::cout << std::endl;
+}
+
 #endif
