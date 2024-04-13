@@ -9,44 +9,52 @@
 #include <iostream>
 #include <typeinfo>
 
+// This concept is just to ensure that non-arithmetic types are not being passed to the matrix
 template <typename T>
 concept Numeric = std::integral<T> || std::floating_point<T>;
 
+/*
+Note : For now, we are only handling 1D and 2D matrices.
+*/
 template <Numeric T, int rows = 0, int cols = 0>
 class Matrix
 {
 public:
-    VectorContainer <VectorContainer<T>*>* matrix;
+    VectorContainer <VectorContainer<T>*>* matrix;   // Our matrix is a (custom) vector of vectors. The vectors within the matrix represent rows.
     int no_rows;
     int no_cols;
 
-    Matrix();
-    Matrix(std::initializer_list<T> init);
-    ~Matrix();
+    Matrix();                                        // Constructor to create a zero-matrix
+    Matrix(std::initializer_list<T> init);           // Constructor to create a matrix from a lit of supplied elements
+    ~Matrix();                                       // The destructor clears the memory alloted to data member matrix
 
-    VectorContainer<T>& operator [](const int row);
+    VectorContainer<T>& operator [](const int row);                      // Overload of [] operator to access matrix elements
     
-    Matrix<T, rows, cols>& operator =(Matrix<T, rows, cols>& other);
-    Matrix<T, rows, cols>& operator =(Matrix<T, rows, cols> other);
+    Matrix<T, rows, cols>& operator =(Matrix<T, rows, cols>& other);     // Overload of assignment operator
+    Matrix<T, rows, cols>& operator =(Matrix<T, rows, cols> other);      // Another overload of the same assignment operator (just a quick bug fix)
 
-    Matrix<T, rows, cols> operator+(T obj);
-    Matrix<T, rows, cols> operator-(T obj);
-    Matrix<T, rows, cols> operator*(T obj);
-    Matrix<T, rows, cols> operator/(T obj);
+    Matrix<T, rows, cols> operator+(T obj);          // Overload of + operator to add a scalar to a matrix
+    Matrix<T, rows, cols> operator-(T obj);          // Overload of - operator to subtract a scalar from a matrix
+    Matrix<T, rows, cols> operator*(T obj);          // Overload of * operator to multiply a matrix by a scalar
+    Matrix<T, rows, cols> operator/(T obj);          // Overload of / operator to divide a matrix by a scalar
 
-    Matrix<T, rows, cols> operator+(Matrix<T, rows, cols>& m);
-    Matrix<T, rows, cols> operator-(Matrix<T, rows, cols>& m);
+    Matrix<T, rows, cols> operator+(Matrix<T, rows, cols>& m);          // Overload of + operator to add two matrices
+    Matrix<T, rows, cols> operator-(Matrix<T, rows, cols>& m);          // Overload of + operator to subtract one matrix from another
 
     template <typename U, int rows1, int cols1, int rows2, int cols2>
-    friend Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, cols2>& m2);
+    friend Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, cols2>& m2);    // Friend function to handle multiplication of two matrices
 
-    void displayMatrix();
+    void displayMatrix();           // Helper function to print the matrix to stdout. Used for debugging purposes.
 };
 
 template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>::Matrix()
 {
+    if(rows < 0 || cols < 0)
+        throw std::invalid_argument("Matrix dimensions can't be negative");
+
     matrix = new VectorContainer <VectorContainer<T>*>();
+
     this->no_rows = rows;
     this->no_cols = cols;
 
@@ -70,7 +78,11 @@ Matrix<T, rows, cols>::Matrix()
 template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>::Matrix(std::initializer_list<T> init)
 {
+    if(rows < 0 || cols < 0)
+        throw std::invalid_argument("Matrix dimensions can't be negative");
+
     matrix = new VectorContainer <VectorContainer<T>*>();
+
     this->no_rows = rows;
     this->no_cols = cols;
 
@@ -103,6 +115,11 @@ Matrix<T, rows, cols>::~Matrix()
     delete matrix;
 }
 
+/*
+Note : Suppose we're accessing element a[2][3] of a matrix.
+The second [] overload is part of the VectorContainer implementation.
+We are overloading only the first [] to return the required row, which is indexed by the second [].
+*/
 template <Numeric T, int rows, int cols>
 VectorContainer<T>& Matrix<T, rows, cols>::operator [](const int row)
 {
@@ -223,7 +240,7 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(Matrix<T, rows, cols>& m
 
 template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m)
-{  
+{
     Matrix <T, rows, cols> res;
 
     for(int i = 0; i < this->no_rows; i++)
@@ -239,9 +256,16 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m
     return res;
 }
 
+/*
+Note : Operator overloading was not used for matrix-matrix multiplication since it'd become quite messy 
+considering the current implementation. Hence, a friend function was created instead to handle it.
+*/
 template <Numeric U, int rows1, int cols1, int rows2, int cols2>
 Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, cols2>& m2)
 {
+    if(cols1 != rows2)
+        throw std::invalid_argument("Incorrect dimensions for matrix multiplication");
+
     Matrix <U, rows1, cols2> res;
 
     for(int i = 0; i < rows1; i++)
