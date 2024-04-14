@@ -53,13 +53,44 @@ int main (int argc, char *argv[])
     std::cout << dot(m4, m4) << std::endl;
     */
 
-    MultiVector m10 = {10, 20, 30.5, 'A'};
+    // MultiVector m10 = {10, 20, 30.5, 'A'};
 
-    MultiVector m20 = m10;
-    m20[3] += Data(5);
+    // MultiVector m20 = m10;
+    // m20[3] += Data(5);
 
-    std::cout << m10[3] << std::endl;
-    std::cout << m20[3] << std::endl;
+    // std::cout << m10[3] << std::endl;
+    // std::cout << m20[3] << std::endl;
+
+    Matrix <int, 2, 2> a({3, -1, 4, 3});
+    Matrix <int, 3, 3> b({4, -3, 5, 1, 0, 3, -1, 5, 2});
+
+    Matrix <int, 2, 3> y({1, 1, 1, 1, 1, 1});
+
+    Matrix <int, 2, 3> x({1, 2, 3, 4, 5, 6});
+
+    // y = y - 1;
+    // y.displayMatrix();
+
+    Matrix <int, 2, 3> z = x - y;
+    // z.displayMatrix();
+
+    Matrix <double, 2, 2> p;
+    std::cout << std::endl;
+    // p.displayMatrix();
+
+    Matrix <int, 2, 2> m1({2, 2, 2, 2});
+    Matrix <int, 2, 2> m2({2, 2, 2, 2});
+
+    // (multiply<int, 2, 2, 2, 2>(m1, m2) * 2).displayMatrix();
+
+    y.displayMatrix();
+    std::cout << std::endl;
+
+    transpose(y).displayMatrix();
+
+    // double d = determinant(b);
+
+    // std::cout << d << std::endl;
 
 	return 0;
 }
