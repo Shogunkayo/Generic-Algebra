@@ -8,6 +8,7 @@
 #include <initializer_list>
 #include <iostream>
 #include <typeinfo>
+#include <cmath>
 
 // This concept is just to ensure that non-arithmetic types are not being passed to the matrix
 template <typename T>
@@ -297,6 +298,7 @@ void Matrix<T, rows, cols>::displayMatrix()
     }
 }
 
+// Returns transpose of input matrix
 template <Numeric T, int rows, int cols>
 Matrix<T, cols, rows> transpose(Matrix<T, rows, cols>& m)
 {
@@ -309,9 +311,62 @@ Matrix<T, cols, rows> transpose(Matrix<T, rows, cols>& m)
     return res;
 }
 
+// Helper function for the main determinant function
+template <Numeric T, int rows, int cols>
+double determinant_helper(Matrix<T, rows, cols>& m, int n)
+{
+    double det = 0;
+
+    Matrix<T, rows, cols> submatrix;
+
+    if (n == 2)
+        return ((m[0][0] * m[1][1]) - (m[1][0] * m[0][1]));
+
+    else 
+    {
+        for (int x = 0; x < n; x++) 
+        {
+            int subi = 0;
+
+            for (int i = 1; i < n; i++) 
+            {
+                int subj = 0;
+
+                for (int j = 0; j < n; j++) 
+                {
+                    if (j == x)
+                        continue;
+                    
+                    submatrix[subi][subj] = m[i][j];
+                    subj++;
+                }
+                subi++;
+            }
+            
+            det = det + (pow(-1, x) * m[0][x] * determinant_helper(submatrix, n - 1));
+        }
+    }
+    return det;
+}
+
+// Returns determinant of a matrix (only applicable to square matrices)
+template <Numeric T, int rows, int cols>
+double determinant(Matrix<T, rows, cols>& m)
+{
+    if(m.no_rows != m.no_cols)
+        throw std::invalid_argument("Determinant can be found only for square matrices");
+
+    double det = determinant_helper(m, rows);
+    return det;
+}
+
+// Returns LU decomposition of input matrix (only applicable to square matrices)
 template <Numeric T, int rows, int cols>
 void luDecomposition(Matrix<T, rows, cols>& m)
 {
+    if(m.no_rows != m.no_cols)
+        throw std::invalid_argument("LU decomposition can be found only for square matrices");
+
     VectorContainer <Matrix<T, rows, cols>> res;
 
     Matrix <T, rows, cols> upper;
