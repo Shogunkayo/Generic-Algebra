@@ -9,6 +9,7 @@
 #include <iostream>
 #include <typeinfo>
 #include <cmath>
+#include <omp.h>
 
 // This concept is just to ensure that non-arithmetic types are not being passed to the matrix
 template <typename T>
@@ -65,6 +66,7 @@ Matrix<T, rows, cols>::Matrix()
     {
         VectorContainer <T>* temp = new VectorContainer <T>();
 
+        #pragma omp for
         for(int i = 0; i < cols; i++)
         {
             temp->push_back(0);
@@ -110,6 +112,7 @@ Matrix<T, rows, cols>::Matrix(std::initializer_list<T> init)
 template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>::~Matrix()
 {
+    #pragma omp for
     for(int i = 0; i < matrix->size(); i++)
         delete (*matrix)[i];
 
@@ -130,6 +133,7 @@ VectorContainer<T>& Matrix<T, rows, cols>::operator [](const int row)
 template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols>& other)
 {
+    #pragma omp for
     for(int i = 0; i < this->no_rows; i++)
     {
         *((*matrix)[i]) = other[i];
@@ -141,6 +145,7 @@ Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols>& 
 template <Numeric T, int rows, int cols>
 Matrix<T, rows, cols>& Matrix<T, rows, cols>::operator =(Matrix<T, rows, cols> other)
 {
+    #pragma omp for
     for(int i = 0; i < this->no_rows; i++)
     {
         *((*matrix)[i]) = other[i];
@@ -154,10 +159,12 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(T obj)
 {
     Matrix <T, rows, cols> res;
 
+    #pragma omp parallel shared(res)
     for(int i = 0; i < this->no_rows; i++)
     {
         VectorContainer <T> currRow = *((*matrix)[i]);
 
+        #pragma omp parallel shared(res)
         for(int j = 0; j < this->no_cols; j++)
         {
             res[i][j] = currRow[j] + obj;
@@ -172,10 +179,12 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(T obj)
 {
     Matrix <T, rows, cols> res;
 
+    #pragma omp parallel shared(res)
     for(int i = 0; i < this->no_rows; i++)
     {
         VectorContainer <T> currRow = *((*matrix)[i]);
 
+        #pragma omp parallel shared(res)
         for(int j = 0; j < this->no_cols; j++)
         {
             res[i][j] = currRow[j] - obj;
@@ -190,10 +199,12 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator *(T obj)
 {
     Matrix <T, rows, cols> res;
 
+    #pragma omp parallel shared(res)
     for(int i = 0; i < this->no_rows; i++)
     {
         VectorContainer <T> currRow = *((*matrix)[i]);
 
+        #pragma omp parallel shared(res)
         for(int j = 0; j < this->no_cols; j++)
         {
             res[i][j] = currRow[j] * obj;
@@ -208,10 +219,12 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator /(T obj)
 {
     Matrix <T, rows, cols> res;
 
+    #pragma omp parallel shared(res)
     for(int i = 0; i < this->no_rows; i++)
     {
         VectorContainer <T> currRow = *((*matrix)[i]);
 
+        #pragma omp parallel shared(res)
         for(int j = 0; j < this->no_cols; j++)
         {
             res[i][j] = currRow[j] / obj;
@@ -226,10 +239,12 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator +(Matrix<T, rows, cols>& m
 {  
     Matrix <T, rows, cols> res;
 
+    #pragma omp parallel shared(res)
     for(int i = 0; i < this->no_rows; i++)
     {
         VectorContainer <T> currRow = *((*matrix)[i]);
 
+        #pragma omp parallel shared(res)
         for(int j = 0; j < this->no_cols; j++)
         {
             res[i][j] = currRow[j] + m[i][j];
@@ -244,10 +259,12 @@ Matrix<T, rows, cols> Matrix<T, rows, cols>::operator -(Matrix<T, rows, cols>& m
 {
     Matrix <T, rows, cols> res;
 
+    #pragma omp parallel shared(res)
     for(int i = 0; i < this->no_rows; i++)
     {
         VectorContainer <T> currRow = *((*matrix)[i]);
 
+        #pragma omp parallel shared(res)
         for(int j = 0; j < this->no_cols; j++)
         {
             res[i][j] = currRow[j] - m[i][j];
@@ -291,6 +308,7 @@ void Matrix<T, rows, cols>::displayMatrix()
         std::cout << std::endl;
         VectorContainer <T> currRow = *((*matrix)[i]);
 
+        #pragma omp for
         for(int j = 0; j < this->no_cols; j++)
             std::cout << currRow[j] << " ";
 
@@ -304,6 +322,7 @@ Matrix<T, cols, rows> transpose(Matrix<T, rows, cols>& m)
 {
     Matrix <T, cols, rows> res;
 
+    #pragma omp for
     for(int i = 0; i < cols; i++)
         for(int j = 0; j < rows; j++)
             res[i][j] = m[j][i];
@@ -342,7 +361,7 @@ double determinant_helper(Matrix<T, rows, cols>& m, int n)
                 }
                 subi++;
             }
-            
+
             det = det + (pow(-1, x) * m[0][x] * determinant_helper(submatrix, n - 1));
         }
     }
