@@ -2,182 +2,44 @@
 #define VECTOR_H
 
 #include <cmath>
+#include <cstddef>
 #include <initializer_list>
 #include <stdexcept>
 #include <type_traits>
 #include <iostream>
 #include <variant>
-#include "complexnumber.h"
-#include "data.h"
+#include "vectorcontainer.h"
+#include "custom_concepts.h"
 
-template<typename T>
-class VectorContainer {
-	public:
-		T* arr;
-		int capacity;
-		int no_elements;
-	
-		VectorContainer () : arr(new T[1]), capacity(1), no_elements(0) {}
-		VectorContainer (std::initializer_list<T> init): capacity(init.size()), no_elements(init.size()) {
-			arr = new T[capacity];
-			auto first = init.begin();
-			auto last = init.end();
-			for (int i = 0; first != last ; ++i, (void)++first)
-				arr[i] = *first;
-		}
-		VectorContainer (VectorContainer &obj) {
-			capacity = obj.capacity;
-			no_elements = obj.no_elements;
-			arr = new T[capacity];
-
-			for (int i = 0; i < no_elements; i++) {
-				arr[i] = obj.arr[i];
-			}
-
-		}
-		VectorContainer& operator= (VectorContainer &obj) {
-			if (this->capacity != obj.capacity) {
-				if constexpr (std::is_class<T>::value) {
-					for (int i = 0; i < this->no_elements; i++) {
-						this->arr[i].~T();
-					}
-				}
-				delete[] this->arr;
-				this->capacity = obj.capacity;
-				this->arr = new T[this->capacity];
-			}
-
-			for (int i = 0; i < obj.no_elements; i++) {
-				this->arr[i] = obj.arr[i];
-			}
-
-			this->no_elements = obj.no_elements;
-			return (*this);
-		}
-		~VectorContainer();
-
-		void resize();
-		void push_back(const T key);
-		void insert(const T key, const int index);
-		void pop();
-
-		T& at(const int index);
-		T& operator[](const int index);
-		const T& operator[](const int index) const;
-
-		int size() const;
-		int getcapacity() const;
-};
-
-template <typename T>
-VectorContainer<T>::~VectorContainer() {
-    if constexpr (std::is_class<T>::value) {
-        for (int i = 0; i < no_elements; i++) {
-            arr[i].~T();
-        }
-    }
-    delete[] arr;
-}
-
-template <typename T>
-void VectorContainer<T>::resize() {
-	T* new_arr = new T[capacity * 2];
-
-	for (int i = 0; i < no_elements; i++) {
-		new_arr[i] = arr[i];
-	}
-
-	delete[] arr;
-	arr = new_arr;
-	capacity *= 2;
-}
-
-template <typename T>
-void VectorContainer<T>::push_back(const T key) {
-    if (no_elements == capacity) {
-        resize();
-    }
-    arr[no_elements++] = key;
-}
-
-template <typename T>
-void VectorContainer<T>::insert(const T key, const int index) {
-    if (index < 0) {
-        throw std::out_of_range("Index must be positive");
-    }
-    if (index >= no_elements) {
-        // same operation as push_back
-        return push_back(key);
-    }
-    if (no_elements == capacity) {
-        resize();
-    }
-    for (int i = no_elements; i >= 0; i--) {
-        if (i == index) {
-            arr[i] = key;
-            no_elements++;
-            break;
-        }
-        arr[i] = arr[i - 1];
-    }
-}
-
-template <typename T>
-T& VectorContainer<T>::at(const int index) {
-    if (index < 0 || index > no_elements - 1) {
-        throw std::out_of_range("Index out of bounds");
-    }
-    return arr[index];
-}
-
-template <typename T>
-T& VectorContainer<T>::operator[](const int index) {
-    if (index < 0 || index > no_elements - 1) {
-        throw std::out_of_range("Index out of bounds");
-    }
-    return arr[index];
-}
-
-template <typename T>
-const T& VectorContainer<T>::operator[](const int index) const {
-    if (index < 0 || index > no_elements - 1) {
-        throw std::out_of_range("Index out of bounds");
-    }
-    return arr[index];
-}
-
-template <typename T>
-void VectorContainer<T>::pop() {
-    no_elements--;
-}
-
-template <typename T>
-int VectorContainer<T>::size() const {
-    return no_elements;
-}
-
-template <typename T>
-int VectorContainer<T>::getcapacity() const {
-    return capacity;
-}
-
-// ----------------------------------------------------------------------------
-
+// forward declaration of Vector class
 template <Arithmetic T>
 class Vector;
 
+// forward declartion of friend function to find the euclidean
+// distance between two Vectors
 template <typename T>
 double euclidean_distance(const Vector<T>& v1, const Vector<T>& v2);
 
 template <Arithmetic T>
 class Vector : public VectorContainer<T> {
 	public:
-		int dim_l;
-		int dim_r;
+        // in the matrix dimension notation AxB,
+        // dim_l = A
+        // dim_r = B
+		size_t dim_l;
+		size_t dim_r;
+        // flag to indicate whether to use dim_l (column vector)
+        // or dim_r (row vector) for operations
 		int isColumn;
-	
+	    
+        // All constructors create a column vector
+        // Default constructor
 		Vector() : dim_l(0), dim_r(1), isColumn(1) {}
+
+        // Constructor for initializer_list
 		Vector(std::initializer_list<T> init) : VectorContainer<T>(init), dim_l(init.size()), dim_r(1), isColumn(1) {}
+
+        // Copy constructor
 		Vector(Vector& obj) {
 			this->capacity = obj.capacity;
 			this->no_elements = obj.no_elements;
@@ -190,6 +52,8 @@ class Vector : public VectorContainer<T> {
 				this->arr[i] = obj.arr[i];
 			}
 		}
+
+        // Move assignment
 		Vector& operator= (Vector&& other) noexcept {
 			if (this != &other) {
 				if constexpr (std::is_class<T>::value) {
@@ -216,33 +80,49 @@ class Vector : public VectorContainer<T> {
 
 			return (*this);
 		}
-		
+        
+        // handle changing dimensions while inserting
+        // and deleting element
 		void push_back(const T key);
 		void insert(const T key, const int index);
 		void pop();
 
-		VectorContainer<int> get_dimensions();
+        // return the dimensions (dim_l, dim_r) as a Vector<int>
+		Vector<int> get_dimensions();
 
+        // scalar arithmetic operator overloads
 		Vector<T> operator+ (const T obj);
 		Vector<T> operator- (const T obj);
 		Vector<T> operator* (const T obj);
 		Vector<T> operator/ (const T obj);
+
+        // vector arithmetic operator overloads
 		Vector<T> operator+ (Vector<T> obj);
 		Vector<T> operator- (Vector<T> obj);
 
+        // return the magnitude of Vector
 		double magnitude();
+        
+        // interchange dim_l and dim_r, isColumn
+        // used for dimension checking with Matrix operations
 		void transpose();
 
-		friend double euclidean_distance<>(const Vector<T>& v1, const Vector<T>& v2);
-
+        // function to apply a function to each element of Vector
+        // supports lambda templates
 		template <typename Func>
+        // Func&& accepts both lvalue and rvalue references
 		void map(Func&& func) {
 			for (int i = 0; i < this->no_elements; i++) {
 				this->arr[i] = func(this->arr[i]);
 			}
 		}
 
+        // example lambda templates to demonstrate map
 		void square();
+        void pow(const int& exponent);
+
+        // friend function to find euclidean distance between two Vectors
+		friend double euclidean_distance<>(const Vector<T>& v1, const Vector<T>& v2);
 }; 
 
 template <Arithmetic T>
@@ -267,12 +147,12 @@ void Vector<T>::pop() {
 }
 
 template <Arithmetic T>
-VectorContainer<int> Vector<T>::get_dimensions() {
-	return VectorContainer<int> (dim_l, dim_r);
+Vector<int> Vector<T>::get_dimensions() {
+	return Vector<int> (dim_l, dim_r);
 }
 
 template <Arithmetic T>
-Vector<T> Vector<T>::operator+ (const T obj) {
+Vector<T> Vector<T>::operator+(const T obj) {
 	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
@@ -283,7 +163,7 @@ Vector<T> Vector<T>::operator+ (const T obj) {
 }
 
 template <Arithmetic T>
-Vector<T> Vector<T>::operator- (const T obj) {
+Vector<T> Vector<T>::operator-(const T obj) {
 	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
@@ -294,7 +174,7 @@ Vector<T> Vector<T>::operator- (const T obj) {
 }
 
 template <Arithmetic T>
-Vector<T> Vector<T>::operator* (const T obj) {
+Vector<T> Vector<T>::operator*(const T obj) {
 	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
@@ -305,7 +185,7 @@ Vector<T> Vector<T>::operator* (const T obj) {
 }
 
 template <Arithmetic T>
-Vector<T> Vector<T>::operator/ (const T obj) {
+Vector<T> Vector<T>::operator/(const T obj) {
 	Vector<T> result = (*this);
 
 	for (int i = 0; i < result.no_elements; i++) {
@@ -316,7 +196,7 @@ Vector<T> Vector<T>::operator/ (const T obj) {
 }
 
 template <Arithmetic T>
-Vector<T> Vector<T>::operator+ (const Vector<T> obj) {
+Vector<T> Vector<T>::operator+(const Vector<T> obj) {
 	if (this->no_elements != obj.no_elements) {
 		throw std::invalid_argument("Vectors should have equal number of elements");
 	}
@@ -331,7 +211,7 @@ Vector<T> Vector<T>::operator+ (const Vector<T> obj) {
 }
 
 template <Arithmetic T>
-Vector<T> Vector<T>::operator- (const Vector<T> obj) {
+Vector<T> Vector<T>::operator-(const Vector<T> obj) {
 	if (this->no_elements != obj.no_elements) {
 		throw std::invalid_argument("Vectors should have equal number of elements");
 	}
@@ -346,7 +226,7 @@ Vector<T> Vector<T>::operator- (const Vector<T> obj) {
 }
 
 template <Arithmetic T>
-double Vector<T>::magnitude () {
+double Vector<T>::magnitude() {
 	double result = 0;
 	for (int i = 0; i < this->no_elements; i++) {
 		result += this->arr[i] * this->arr[i];
@@ -356,11 +236,26 @@ double Vector<T>::magnitude () {
 }
 
 template <Arithmetic T>
-void Vector<T>::transpose () {
+void Vector<T>::transpose() {
 	isColumn = !isColumn;
 	dim_r = dim_r ^ dim_l;
 	dim_l = dim_r ^ dim_l;
 	dim_r = dim_r ^ dim_l;
+}
+
+template <Arithmetic T>
+void Vector<T>::square() {
+    // lambda template to square each element
+	this->map([] <Arithmetic U> (U a) { return a * a; });
+}
+
+template <Arithmetic T>
+void Vector<T>::pow(const int& exponent) {
+    // lambda template to raise each element to exponent
+    if (exponent < 0) {
+        throw std::invalid_argument("Exponent cannot be negative");
+    }
+    this->map([&] <Arithmetic U> (U a) { return std::pow(a, exponent); }); 
 }
 
 template <typename T>
@@ -375,158 +270,6 @@ double euclidean_distance(const Vector<T>& v1, const Vector<T>& v2) {
 	}
 
 	return sqrt(result);
-}
-
-template <typename T, typename U>
-auto dot(const Vector<T>& v1, const Vector<U>& v2) {
-	if (v1.no_elements != v2.no_elements) {
-		throw std::invalid_argument("Vectors should have equal number of elements");
-	}
-
-	using ReturnType = std::conditional_t<std::is_same_v<T, int> && std::is_same_v<U, int>, int, double>;
-	ReturnType result = 0;
-	for (int i = 0; i < v1.no_elements; i++) {
-		result += v1.arr[i] * v2.arr[i];
-	}
-
-	return result;
-}
-
-template <Arithmetic T>
-void Vector<T>::square () {
-	this->map([] <Arithmetic U> (U a) {return a * a;});
-}
-
-// ----------------------------------------------------------------------------
-
-class MultiVector {
-    public:
-        Vector<Data> vector;
-
-        MultiVector() = default;
-
-        template <typename... Args>
-        MultiVector(Args&&... args) {
-            (push_back(args), ...);
-        }
-
-        template <typename T>
-        void push_back(const T& value) {
-            Data data;
-            if constexpr (std::is_same_v<T, char>) {
-                data.type = DataType::CHAR;
-                data.value.c_val = value;
-            }
-            else if constexpr (std::is_same_v<T, int>) {
-                data.type = DataType::INT;
-                data.value.i_val = value;
-            }
-            else if constexpr (std::is_same_v<T, float>) {
-                data.type = DataType::FLOAT;
-                data.value.f_val = value;
-            }
-            else if constexpr (std::is_same_v<T, double>) {
-                data.type = DataType::DOUBLE;
-                data.value.d_val = value;
-            }
-            else {
-                throw std::invalid_argument("Invalid type");
-            }
-
-            vector.push_back(data);
-        }
-
-        template <typename T>
-        T at(const int index) {
-            Data& data = vector.at(index);
-            if (data.type == DataType::CHAR) {
-                return data.value.c_val;
-            }
-            else if (data.type == DataType::INT) {
-                return data.value.i_val;
-            }
-            else if (data.type == DataType::FLOAT) {
-                return data.value.f_val;
-            }
-            else if (data.type == DataType::DOUBLE) {
-                return data.value.d_val;
-            }
-            else {
-                throw std::invalid_argument("Invalid type");
-                return 0;
-            }
-        }
-
-        void transpose() {
-            vector.transpose();
-        }
-
-        Data& operator[](const int index) {
-            if (index >= vector.size()) {
-                throw std::out_of_range("Index out of bounds");
-            } 
-
-            return vector[index];
-        }
-
-        MultiVector operator+(const Data obj) {
-            MultiVector result;
-            result.vector = vector + obj;
-            
-            return result;
-        }
-
-        MultiVector operator+(MultiVector& obj) {
-            if (vector.size() != obj.vector.size()) {
-                throw std::invalid_argument("MultiVectors should have equal number of elements");
-            }
-
-            MultiVector result;
-            result.vector = vector + obj.vector;
-
-            return result;
-        }
-
-        MultiVector operator-(MultiVector& obj) {
-            if (vector.size() != obj.vector.size()) {
-                throw std::invalid_argument("MultiVectors should have equal number of elements");
-            }
-
-            MultiVector result;
-            result.vector = vector - obj.vector;
-
-            return result;
-        }
-        void square() {
-            vector.square();
-        }
-
-        template <typename Func>
-        void map(Func &&func) {
-            vector.map(func);
-        }
-
-        double magnitude() {
-            Data result(0.0); 
-            for (int i = 0; i < vector.size(); i++) {
-                result += vector[i] * vector[i];
-            }
-
-            return sqrt(result.value.d_val);
-        }
-};
-
-double dot(MultiVector mv1, MultiVector mv2) {
-    if (mv1.vector.size() != mv2.vector.size()) {
-		throw std::invalid_argument("MultiVectors should have equal number of elements");
-	}
-    
-    Data result(0.0);
-    for (int i = 0; i < mv1.vector.size(); i++) {
-        result += mv1.vector[i] * mv2.vector[i];
-    }
-
-    return result.value.d_val;
 }
 
 #endif

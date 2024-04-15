@@ -1,5 +1,5 @@
-#include "vector.h"
-#include "matrix.h"
+#include "main.h"
+
 #include <iostream>
 #include <ostream>
 
@@ -53,13 +53,18 @@ int main (int argc, char *argv[])
     std::cout << dot(m4, m4) << std::endl;
     */
 
-    // MultiVector m10 = {10, 20, 30.5, 'A'};
+    Vector v2 = {10};
+    v2.pow(2);
 
-    // MultiVector m20 = m10;
-    // m20[3] += Data(5);
+    std::cout << v2[0] << std::endl;
 
-    // std::cout << m10[3] << std::endl;
-    // std::cout << m20[3] << std::endl;
+    MultiVector m10 = {10, 20, 30.5, 'A'};
+
+    MultiVector m20 = m10;
+    m20[3] += Data(5);
+
+    std::cout << m10[3] << std::endl;
+    std::cout << m20[3] << std::endl;
 
     Matrix <int, 2, 2> a({3, -1, 4, 3});
     Matrix <int, 3, 3> b({4, -3, 5, 1, 0, 3, -1, 5, 2});

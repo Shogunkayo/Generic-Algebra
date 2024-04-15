@@ -1,7 +1,8 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "vector.h"
+#include "vectorcontainer.h"
+#include "custom_concepts.h"
 #include <stdexcept>
 #include <type_traits>
 #include <concepts>
@@ -10,10 +11,6 @@
 #include <typeinfo>
 #include <cmath>
 #include <omp.h>
-
-// This concept is just to ensure that non-arithmetic types are not being passed to the matrix
-template <typename T>
-concept Numeric = std::integral<T> || std::floating_point<T>;
 
 /*
 Note : For now, we are only handling 1D and 2D matrices.

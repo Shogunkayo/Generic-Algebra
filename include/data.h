@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+// Union to hold different types of values
 union Value {
     char c_val;
     int i_val;
@@ -10,6 +11,7 @@ union Value {
     double d_val;
 };
 
+// Enum to specify the type of data stored in Value
 enum class DataType {
     CHAR,
     INT,
@@ -21,8 +23,10 @@ struct Data {
     DataType type;
     Value value;
     
-    Data() {}
+    // Default constructor used in MultiVector
+    Data() = default;
 
+    // Parameterized constructor to store value
     template <typename T>
     Data(T val) {
         if constexpr (std::is_same_v<T, char>) {
@@ -42,6 +46,7 @@ struct Data {
         }
     }
 
+    // Relational operator overloads
     bool operator==(const Data& other) const {
         if (type != other.type)
             return false;
@@ -64,6 +69,7 @@ struct Data {
         return !(*this == other);
     }
 
+    // Assignment operator overloads for accepted types
     Data& operator=(char c) {
         type = DataType::CHAR;
         value.c_val = c;
@@ -88,6 +94,8 @@ struct Data {
         return *this;
     }
 
+    // Arithmetic operator overloads
+    // Handle each type seperately to preserve precision
     Data& operator+=(const Data& other) {
         switch (type) {
             case DataType::CHAR:
@@ -392,8 +400,8 @@ struct Data {
         return result;
     }
 
+    // Friend function to overload output and input stream operators
     friend std::ostream& operator<<(std::ostream& os, const Data& data);
-
     friend std::istream& operator>>(std::istream& is, Data& data);
 };
 

@@ -3,9 +3,6 @@
 
 #include <stdexcept>
 #include <type_traits>
-#include <concepts>
-
-#include "data.h"
 
 template <typename T, typename U>
 class ComplexNumber
@@ -72,13 +69,5 @@ U ComplexNumber<T, U>::getImaginary()
 {
     return this->imaginary;
 }
-
-template <typename T>
-concept Arithmetic = std::is_arithmetic_v<T> 
-	|| std::is_same_v<T, ComplexNumber<int, int>>
-	|| std::is_same_v<T, ComplexNumber<double, double>>
-	|| std::is_same_v<T, ComplexNumber<int, double>>
-	|| std::is_same_v<T, ComplexNumber<double, int>>
-    || std::is_same_v<T, struct Data> ;
 
 #endif
