@@ -297,6 +297,31 @@ Matrix<U, rows1, cols2> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, c
     return res;
 }
 
+/*
+The following shows partial template specialization of the multiply function.
+We need one less for loop when we have an mxn matrix and an nx1 matrix/vector.
+*/
+template <Numeric U, int rows1, int cols1, int rows2>
+Matrix<U, rows1, 1> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, 1>& m2)
+{
+    if(cols1 != rows2)
+        throw std::invalid_argument("Incorrect dimensions for matrix multiplication");
+
+    Matrix <U, rows1, 1> res;
+
+    for(int i = 0; i < rows1; i++)
+    {
+        for(int k = 0; k < rows2; k++)
+        {
+            res[i][0] += m1[i][k] * m2[k][0];
+        }
+    }
+
+    std::cout << "specialization" << std::endl;
+
+    return res;
+}
+
 template <Numeric T, int rows, int cols>
 void Matrix<T, rows, cols>::displayMatrix()
 {
