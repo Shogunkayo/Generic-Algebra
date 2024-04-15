@@ -5,12 +5,15 @@
 #include "multivector.h"
 #include "matrix.h"
 
+// calculate dot product of two Vectors
 template <typename T, typename U>
 auto dot(const Vector<T>& v1, const Vector<U>& v2) {
 	if (v1.no_elements != v2.no_elements) {
 		throw std::invalid_argument("Vectors should have equal number of elements");
 	}
-
+    
+    // if both Vectors are of type int, return type will be int
+    // else return type will be double
 	using ReturnType = std::conditional_t<std::is_same_v<T, int> && std::is_same_v<U, int>, int, double>;
 	ReturnType result = 0;
 	for (int i = 0; i < v1.no_elements; i++) {
@@ -20,6 +23,7 @@ auto dot(const Vector<T>& v1, const Vector<U>& v2) {
 	return result;
 }
 
+// calculate the dot product of two MultiVectors
 double dot(MultiVector mv1, MultiVector mv2) {
     if (mv1.vector.size() != mv2.vector.size()) {
 		throw std::invalid_argument("MultiVectors should have equal number of elements");

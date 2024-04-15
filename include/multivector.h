@@ -189,11 +189,6 @@ class MultiVector {
         void square() {
             vector.square();
         }
-
-        // apply vector pow
-        void pow(const size_t& exponent) {
-            vector.pow(exponent);  
-        }
 };
 
 #endif
