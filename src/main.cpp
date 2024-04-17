@@ -56,6 +56,10 @@ int main (int argc, char *argv[])
     Vector v2 = {10};
     v2.pow(2);
 
+    Vector v3 = {10, 20};
+
+    v2 = v2 + v3;
+
     std::cout << v2[0] << std::endl;
 
     MultiVector m10 = {10, 20, 30.5, 'A'};
