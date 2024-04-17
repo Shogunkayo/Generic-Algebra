@@ -419,7 +419,7 @@ void luDecomposition(Matrix<T, rows, cols>& m)
     {
         for(int k = i; k < n; k++)
         {
-            int sum = 0;
+            double sum = 0;
 
             for(int j = 0; j < i; j++)
                 sum += (lower[i][j] * upper[j][k]);
@@ -434,7 +434,7 @@ void luDecomposition(Matrix<T, rows, cols>& m)
 
             else
             {
-                int sum = 0;
+                double sum = 0;
 
                 for(int j = 0; j < i; j++)
                     sum += (lower[k][j] * upper[j][i]);
