@@ -6,26 +6,32 @@
 #include "matrix.h"
 #include <type_traits>
 
+// source: https://stackoverflow.com/questions/6534041/how-to-check-whether-operator-exists
 namespace CHECK {
+    // dummy structure
     struct No {}; 
 
-    template<typename T, typename Arg>
+    // the operator to check, returns dummy structure
+    template <typename T, typename Arg>
     No operator* (const T&, const Arg&);
 
-    template<typename T, typename Arg = T>
+    template <typename T, typename Arg = T>
     struct MultiplicationExists {
+        // if * operator is defined for types T and Arg, decltype will take the type returned by the operation
+        // if * operator is not defined, decltype will take type No as returned by the operator overload
+        // defined in the namespace
         enum { value = !std::is_same<decltype(std::declval<T>() * std::declval<Arg>()), No>::value };
     };  
 }
 
 // base function for dot product, returns a * b
 template <typename T, typename U>
+// SFINAE
 typename std::enable_if<CHECK::MultiplicationExists<T, U>::value, T>::type
-dot(const T& a, const U& b) {
+dot(T a, U b) {
     return a * b; 
 }
 
-/*
 // calculate dot product of two Vectors
 template <typename T, typename U>
 auto dot(const Vector<T>& v1, const Vector<U>& v2) {
@@ -43,11 +49,8 @@ auto dot(const Vector<T>& v1, const Vector<U>& v2) {
 
 	return result;
 }
-*/
 
-/*
 // calculate the dot product of two MultiVectors
-template <>
 double dot(MultiVector mv1, MultiVector mv2) {
     if (mv1.vector.size() != mv2.vector.size()) {
 		throw std::invalid_argument("MultiVectors should have equal number of elements");
@@ -60,6 +63,5 @@ double dot(MultiVector mv1, MultiVector mv2) {
 
     return result.value.d_val;
 }
-*/
 
 #endif // !DEBUG

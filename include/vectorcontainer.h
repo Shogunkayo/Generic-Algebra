@@ -13,7 +13,7 @@ class VectorContainer {
 		int no_elements;
 	
         // Default constructor
-		VectorContainer() : arr(nullptr), capacity(0), no_elements(0) {}
+		VectorContainer() : arr(new T[1]), capacity(1), no_elements(0) {}
 
         // Contructor for initializer_list
 		VectorContainer(std::initializer_list<T> init): capacity(init.size()), no_elements(init.size()) {
@@ -33,6 +33,7 @@ class VectorContainer {
 			for (int i = 0; i < no_elements; i++) {
 				arr[i] = obj.arr[i];
 			}
+
 		}
         
         // Copy assignment
