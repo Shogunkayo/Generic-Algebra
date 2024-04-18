@@ -33,7 +33,6 @@ class VectorContainer {
 			for (int i = 0; i < no_elements; i++) {
 				arr[i] = obj.arr[i];
 			}
-
 		}
         
         // Copy assignment
@@ -44,7 +43,9 @@ class VectorContainer {
 						this->arr[i].~T();
 					}
 				}
-				delete[] this->arr;
+                if (this->arr != nullptr) {
+                    delete[] this->arr;
+                }
 				this->capacity = obj.capacity;
 				this->arr = new T[this->capacity];
 			}
@@ -66,7 +67,9 @@ class VectorContainer {
                     arr[i].~T();
                 }
             }
-            delete[] arr;
+            if (arr != nullptr) {
+                delete[] arr;
+            }
         }
 
         // resize arr
