@@ -11,6 +11,8 @@ int main (int argc, char *argv[]) {
     MultiVector mv3 = mv1 + Data(10.0);
     MultiVector mv4 = mv1 + mv2;
 
+    MultiVector mv5;
+
     std::cout << mv3[0] << " " << mv3[1] << std::endl;
     std::cout << mv4[0] << " " << mv4[1] << std::endl;
 
