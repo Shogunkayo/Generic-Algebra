@@ -70,5 +70,35 @@ int main (int argc, char *argv[])
 
     luDecomposition(m);
 
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    Matrix <int, 2, 2> p({1, 1, 1, 1});
+    Matrix <int, 2, 2> q({2, 2, 2, 2});
+
+    Matrix <int, 2, 2> r = multiply2<int, 2, 2, 2, 2>(p, q);
+    r.displayMatrix();
+
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    Matrix <int, 2, 2> p1({1, 1, 1, 1});
+    Vector <int> q1({2, 2});
+
+    Matrix <int, 2, 1> r1 = multiply2<int, 2, 2, 2>(p1, q1);
+    r1.displayMatrix();
+
+    std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    Vector <int> p2({1, 1});
+    Vector <int> q2({2, 2});
+
+    Matrix <int, 2, 2> r2 = multiply2<int, 2, 2>(p2, q2);
+    r2.displayMatrix();
+
 	return 0;
 }
