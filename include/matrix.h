@@ -322,6 +322,73 @@ Matrix<U, rows1, 1> multiply(Matrix<U, rows1, cols1>& m1, Matrix<U, rows2, 1>& m
     return res;
 }
 
+template <typename x, typename T, typename U, int rows1 = 1, int cols1 = 0, int rows2 = 1, int cols2 = 0>
+Matrix<x, rows1, cols2> multiply2(T& m1, U& m2)
+{
+    Matrix <x, rows1, cols2> res;
+
+    res[0][0] = m1 * m2;
+
+    return res;
+}
+
+template <typename x, int rows1, int cols1, int rows2, int cols2>
+Matrix<x, rows1, cols2> multiply2(Matrix<x, rows1, cols1>& m1, Matrix<x, rows2, cols2>& m2)
+{
+    Matrix <x, rows1, cols2> res;
+
+    for(int i = 0; i < rows1; i++)
+    {
+        for(int j = 0; j < cols2; j++)
+        {
+            for(int k = 0; k < rows2; k++)
+            {
+                res[i][j] += m1[i][k] * m2[k][j];
+            }
+        }
+    }
+
+    std::cout << "specialization 1" << std::endl;
+
+    return res;
+}
+
+template <typename x, int rows1, int cols1, int rows2, int cols2 = 1>
+Matrix<x, rows1, cols2> multiply2(Matrix<x, rows1, cols1>& m1, Vector<x>& m2)
+{
+    Matrix <x, rows1, cols2> res;
+
+    for(int i = 0; i < rows1; i++)
+    {
+        for(int k = 0; k < rows2; k++)
+        {
+            res[i][0] += m1[i][k] * m2[k];
+        }
+    }
+
+    std::cout << "specialization 2" << std::endl;
+
+    return res;
+}
+
+template <typename x, int rows1, int cols2>
+Matrix<x, rows1, cols2> multiply2(Vector<x>& m1, Vector<x>& m2)
+{
+    Matrix <x, rows1, cols2> res;
+
+    for(int i = 0; i < rows1; i++)
+    {
+        for(int j = 0; j < cols2; j++)
+        {
+            res[i][j] += m1[i] * m2[j];
+        }
+    }
+
+    std::cout << "specialization 3" << std::endl;
+
+    return res;
+}
+
 template <Numeric T, int rows, int cols>
 void Matrix<T, rows, cols>::displayMatrix()
 {
