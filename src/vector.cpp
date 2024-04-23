@@ -16,7 +16,10 @@ int main (int argc, char *argv[]) {
     std::cout << mv3[0] << " " << mv3[1] << std::endl;
     std::cout << mv4[0] << " " << mv4[1] << std::endl;
 
+    std::cout << "\n\n\nDot function: " << std::endl;
+
     std::cout << dot(10, 20) << std::endl;
+    std::cout << dot(2.5, 3) << std::endl;
     std::cout << dot(v1, v2) << std::endl;
     std::cout << dot(mv1, mv2) << std::endl;
 

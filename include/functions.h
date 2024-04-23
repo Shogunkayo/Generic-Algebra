@@ -20,7 +20,7 @@ namespace CHECK {
         // if * operator is defined for types T and Arg, decltype will take the type returned by the operation
         // if * operator is not defined, decltype will take type No as returned by the operator overload
         // defined in the namespace
-        enum { value = !std::is_same<decltype(std::declval<T>() * std::declval<Arg>()), No>::value };
+        enum { value = !std::is_same_v<decltype(std::declval<T>() * std::declval<Arg>()), No> };
     };  
 }
 

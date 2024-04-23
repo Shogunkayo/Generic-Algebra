@@ -56,11 +56,6 @@ class Vector : public VectorContainer<T> {
         // Move assignment
 		Vector& operator= (Vector&& other) noexcept {
 			if (this != &other) {
-				if constexpr (std::is_class<T>::value) {
-					for (int i = 0; i < this->no_elements; i++) {
-						this->arr[i].~T();
-					}
-				}
 				delete[] this->arr;
 
 				this->no_elements = other.no_elements;
@@ -252,9 +247,6 @@ void Vector<T>::square() {
 template <Arithmetic T>
 void Vector<T>::pow(const int& exponent) {
     // lambda template to raise each element to exponent
-    if (exponent < 0) {
-        throw std::invalid_argument("Exponent cannot be negative");
-    }
     this->map([&] <Arithmetic U> (U a) { return std::pow(a, exponent); }); 
 }
 

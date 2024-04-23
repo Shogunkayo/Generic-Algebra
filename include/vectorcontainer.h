@@ -38,11 +38,6 @@ class VectorContainer {
         // Copy assignment
 		VectorContainer& operator=(VectorContainer &obj) {
 			if (this->capacity != obj.capacity) {
-				if constexpr (std::is_class<T>::value) {
-					for (int i = 0; i < this->no_elements; i++) {
-						this->arr[i].~T();
-					}
-				}
                 if (this->arr != nullptr) {
                     delete[] this->arr;
                 }
@@ -60,13 +55,6 @@ class VectorContainer {
 
         // Destructor
 		~VectorContainer() {
-            // if the VectorContainer type is a class,
-            // call the destructor of each element
-            if constexpr (std::is_class<T>::value) {
-                for (int i = 0; i < no_elements; i++) {
-                    arr[i].~T();
-                }
-            }
             if (arr != nullptr) {
                 delete[] arr;
             }
